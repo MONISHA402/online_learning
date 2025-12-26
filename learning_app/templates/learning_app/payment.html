@@ -1,0 +1,125 @@
+{% extends 'learning_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+/* ---------------- PAYMENT PAGE STYLING ---------------- */
+.payment-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.payment-page h1 {
+    text-align: center;
+    color: #343a40;
+    margin-bottom: 25px;
+}
+
+.payment-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.payment-card p {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #495057;
+}
+
+.payment-card .amount {
+    font-weight: bold;
+    font-size: 22px;
+    color: #0d6efd;
+}
+
+.payment-card .btn {
+    display: inline-block;
+    background-color: #0d6efd;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.payment-card .btn:hover {
+    background-color: #0b5ed7;
+}
+
+.about-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+}
+
+.about-section h2 {
+    color: #343a40;
+    margin-bottom: 10px;
+}
+
+.about-section p {
+    color: #495057;
+    line-height: 1.6;
+}
+</style>
+
+<div class="payment-page">
+    <h1>Payment for {{ course.title }}</h1>
+
+    <div class="payment-card">
+        <p><strong>Course:</strong> {{ course.title }}</p>
+        <p class="amount"><strong>Amount:</strong> ₹{{ course.price }}</p>
+        <p><strong>Payment Method:</strong> Razorpay</p>
+
+        <!-- Razorpay Pay Button -->
+        <button id="pay-button" class="btn">Pay Now</button>
+    </div>
+
+    <div class="about-section">
+        <h2>About Us</h2>
+        <p>We provide top-notch web development courses to help you become a professional developer. Our courses include hands-on projects, expert guidance, and lifetime access to learning materials.</p>
+        <p>Start your journey today and build real-world web applications!</p>
+    </div>
+</div>
+
+<!-- ---------------- RAZORPAY CHECKOUT SCRIPT ---------------- -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('pay-button').onclick = function(e){
+    var options = {
+        "key": "{{ razorpay_key_id }}", // from views.py
+        "amount": "{{ amount_in_paise }}", // in paise
+        "currency": "INR",
+        "name": "{{ course.title }}",
+        "description": "Course Payment",
+        "order_id": "{{ razorpay_order_id }}", // from views.py
+        "handler": function (response){
+            // Redirect to payment_success with course_id and payment_id
+            window.location.href = "{% url 'payment_success' course.id %}?razorpay_payment_id=" + response.razorpay_payment_id;
+        },
+        "prefill": {
+            "name": "{{ request.user.username }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": {
+            "color": "#0d6efd"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
+{% endblock %}

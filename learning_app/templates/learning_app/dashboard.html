@@ -1,0 +1,212 @@
+{% extends 'learning_app/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+
+    <div class="dashboard-header">
+        <h2>Welcome, <span>{{ request.user.first_name|default:request.user.username }}</span> 👋</h2>
+        <p>Your personalized learning dashboard</p>
+    </div>
+
+    <h3 class="section-title">My Courses</h3>
+
+    {% if courses %}
+    <div class="course-grid">
+        {% for course in courses %}
+        <div class="course-card">
+
+            <!-- IMAGE -->
+            <div class="card-image">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x200?text={{ course.title }}">
+                {% endif %}
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body">
+                <h4>{{ course.title }}</h4>
+                <p>{{ course.description|truncatechars:100 }}</p>
+
+                <!-- ANIMATED GRADIENT ROUND PROGRESS -->
+                <div class="progress-circle" style="--angle: {{ progress_dict|get_item:course.id|mul:3.6 }}deg;">
+                    <span>45%</span>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="card-actions">
+                    {% if course.is_paid %}
+                        <a href="{% url 'payment' course.id %}" class="btn danger">Buy</a>
+                    {% else %}
+                        <a href="{% url 'enroll_course' course.id %}" class="btn success">Enroll</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-box">
+        <p>No courses enrolled yet.</p>
+        <a href="{% url 'courses' %}" class="btn primary">Browse Courses</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ======================= CSS ======================= -->
+<style>
+body {
+    background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.dashboard-wrapper {
+    max-width: 1300px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.dashboard-header {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.dashboard-header h2 span {
+    color: #4f46e5;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+}
+
+/* GRID */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* CARD */
+.course-card {
+    background: rgba(255,255,255,0.9);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    transition: 0.3s;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+}
+
+/* IMAGE */
+.card-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+/* BODY */
+.card-body {
+    padding: 20px;
+    text-align: center;
+}
+
+/* ROUND PROGRESS */
+/* Make the container center the circle */
+.progress-circle-wrapper {
+    display: flex;
+    justify-content: center;  /* horizontal center */
+    align-items: center;      /* vertical center if needed */
+    width: 100%;
+    
+}
+
+/* Progress circle */
+.progress-circle {
+    --size: 90px;
+    --thickness: 10px;
+    --angle: 0deg;       /* target progress in degrees */
+    --progress: 0deg;    /* animated variable */
+
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    margin-left: 120px;
+    position: relative;
+
+    /* Gradient fill + track */
+    background: conic-gradient(
+        #4f46e5 0deg,
+        #4f46e5 var(--progress),
+        #a5b4fc var(--progress),
+        #e0e0e0 360deg
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    animation: fill-progress 1.5s ease-out forwards;
+}
+
+.progress-circle::before {
+    content: "";
+    position: absolute;
+    width: calc(var(--size) - var(--thickness) * 2);
+    height: calc(var(--size) - var(--thickness) * 2);
+    background: white;
+    border-radius: 50%;
+}
+
+.progress-circle span {
+    position: relative;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+@keyframes fill-progress {
+    from { --progress: 0deg; }
+    to { --progress: var(--angle); }
+}
+
+
+/* BUTTONS */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+}
+
+.primary { background: #4f46e5; }
+.success { background: #22c55e; }
+.danger { background: #ef4444; }
+
+/* EMPTY */
+.empty-box {
+    text-align: center;
+    padding: 50px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 15px;
+}
+</style>
+{% endblock %}

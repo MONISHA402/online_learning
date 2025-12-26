@@ -1,0 +1,18 @@
+{% extends 'learning_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-page">
+    <h1>👤 My Profile</h1>
+
+    <div class="profile-card">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>First Name:</strong> {{ user.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+
+        <a href="{% url 'edit_profile' %}" class="btn">Edit Profile</a>
+        <a href="{% url 'my_courses' %}" class="btn">My Courses</a>
+    </div>
+</div>
+{% endblock %}

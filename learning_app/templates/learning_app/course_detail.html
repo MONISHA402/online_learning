@@ -1,0 +1,177 @@
+{% extends 'learning_app/base.html' %}
+
+{% block content %}
+<style>
+/* Course Header */
+.course-header h1 {
+    margin-bottom: 10px;
+}
+.course-meta {
+    margin-top: 10px;
+}
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.8rem;
+}
+.badge.paid { background: #ef4444; }
+.badge.free { background: #22c55e; }
+.price { font-weight: bold; margin-left: 10px; }
+
+/* Modules */
+.module-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+.video-card {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+}
+.video-card iframe, .video-card img {
+    width: 100%;
+    height: 180px;
+    border-radius: 6px;
+}
+
+/* Reviews */
+.review-card {
+    background: #f3f4f6;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Review Form */
+.review-form {
+    max-width: 500px;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+.review-form label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+}
+.review-form select,
+.review-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+.btn-submit {
+    margin-top: 15px;
+    background: #4f46e5;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
+
+<div class="course-detail">
+
+    <!-- COURSE HEADER -->
+    <div class="course-header">
+        <h1>{{ course.title }}</h1>
+        <p>{{ course.description }}</p>
+
+        <div class="course-meta">
+            {% if course.is_paid %}
+                <span class="badge paid">Paid</span>
+                <span class="price">₹{{ course.price }}</span>
+            {% else %}
+                <span class="badge free">Free</span>
+            {% endif %}
+        </div>
+
+        <!-- Course Thumbnail -->
+        {% if course.thumbnail %}
+            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" style="width:100%; max-height:300px; object-fit:cover; margin-top:10px; border-radius:10px;">
+        {% endif %}
+    </div>
+
+    <!-- COURSE CONTENT -->
+    <h2>📚 Course Content</h2>
+
+    {% for module in modules %}
+        <div class="module-card">
+            <h3>{{ module.title }}</h3>
+
+            <div class="video-grid">
+                {% for video in module.videos.all %}
+                    <div class="video-card">
+                        <h4>{{ video.title }}</h4>
+
+                        {% if video.allow_embed %}
+                            <iframe width="560" height="315"
+                                src="https://www.youtube.com/embed/{{ video.youtube_id }}"
+                                frameborder="0"
+                                allowfullscreen>
+                            </iframe>
+                        {% else %}
+                            <a href="{{ video.youtube_url }}" target="_blank">▶ Watch on YouTube</a>
+                        {% endif %}
+
+
+                    </div>
+                {% empty %}
+                    <p>No videos added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% empty %}
+        <p>No modules available for this course.</p>
+    {% endfor %}
+
+    <!-- REVIEWS -->
+    <h2>📝 Reviews</h2>
+
+    {% for review in reviews %}
+        <div class="review-card">
+            <strong>{{ review.student.username }}</strong>
+            <span>⭐ {{ review.rating }}/5</span>
+            <p>{{ review.comment }}</p>
+        </div>
+    {% empty %}
+        <p>No reviews yet.</p>
+    {% endfor %}
+
+    <!-- ADD REVIEW -->
+    <h2>✍️ Add Your Review</h2>
+
+    {% if user.is_authenticated %}
+        {% if user_review %}
+            <p style="color: green;">✅ You have already reviewed this course.</p>
+        {% else %}
+            <form method="POST" class="review-form">
+                {% csrf_token %}
+                <label>Rating</label>
+                {{ form.rating }}
+
+                <label>Comment</label>
+                {{ form.comment }}
+
+                <button type="submit" class="btn-submit">Submit Review</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">login</a> to add a review.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

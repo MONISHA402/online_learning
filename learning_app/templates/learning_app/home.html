@@ -1,0 +1,36 @@
+{% extends 'learning_app/base.html' %}
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Welcome to Online Learning Portal</h1>
+        <p>Learn new skills, grow your career, and achieve your dreams from anywhere.</p>
+        <a href="{% url 'courses' %}" class="btn">Browse Courses</a>
+    </div>
+</section>
+
+<!-- Featured Courses -->
+<section class="featured-courses">
+    <h2>Featured Courses</h2>
+    <div class="course-grid">
+        {% for course in courses %}
+        <div class="course-card">
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description|truncatechars:100 }}</p>
+            <p>Price: {% if course.is_paid %} ₹{{ course.price }} {% else %} Free {% endif %}</p>
+            <a href="{% url 'course_detail' course.id %}" class="btn">View Details</a>
+            {% if course.is_paid %}
+                <a href="{% url 'payment' course.id %}" class="btn enroll">Buy Course</a>
+            {% else %}
+                <a href="{% url 'enroll_course' course.id %}" class="btn enroll">Enroll</a>
+            {% endif %}
+
+        </div>
+        {% empty %}
+        <p>No courses available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Learning Portal</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'learning_app/js/main.js' %}"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <h1>Online Learning</h1>
+
+    <nav class="nav-links">
+        <!-- Always visible -->
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'courses' %}">Courses</a>
+
+        {% if user.is_authenticated %}
+            <!-- Links for logged-in users -->
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'my_courses' %}">My Courses</a>
+            <a href="{% url 'profile' %}">{{ user.username }}</a>
+            <a href="{% url 'logout' %}" class="logout">Logout</a>
+        {% else %}
+            <!-- Links for guests -->
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div class="footer-row">
+
+        <!-- Brand -->
+        <div class="footer-col">
+            <h3>Online Learning</h3>
+        </div>
+
+        <!-- Navigation -->
+        <div class="footer-col footer-nav">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'courses' %}">Courses</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'profile' %}">Profile</a>
+            {% endif %}
+        </div>
+
+        <!-- Contact -->
+        <div class="footer-col">
+            <span>support@onlinelearning.com</span>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © 2025 Online Learning Portal
+    </div>
+</footer>
+
+
+</body>
+</html>
